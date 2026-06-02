@@ -39,6 +39,25 @@ class MovieLens:
 
         return ratings_dataset
 
+    def get_popularity_rankings(self):
+        ratings = defaultdict(int)
+        rankings = defaultdict(int)
+
+        with open(self.ratings_path, newline='') as csv_file:
+            ratings_reader = csv.reader(csv_file)
+            next(ratings_reader)
+
+            for row in ratings_reader:
+                movie_id = int(row[1])
+                ratings[movie_id] += 1
+
+        rank = 1
+        for movie_id, rating in sorted(ratings.items(), key=lambda x: x[1], reverse=True):
+            rankings[movie_id] = rank
+            rank += 1
+
+        return rankings
+
 
     def get_user_ratings(self, user: int):
 

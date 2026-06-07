@@ -15,8 +15,8 @@ class MovieLens:
             self,
     ):
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.ratings_path = os.path.join(base_dir, 'ratings.csv')
-        self.movies_path = os.path.join(base_dir, 'movies.csv')
+        self.ratings_path = os.path.join(self.base_dir, 'ratings.csv')
+        self.movies_path = os.path.join(self.base_dir, 'movies.csv')
 
     def load_movie_lens_latest_small(self):
 

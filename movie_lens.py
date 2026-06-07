@@ -14,7 +14,7 @@ class MovieLens:
     def __init__(
             self,
     ):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
         self.ratings_path = os.path.join(base_dir, 'ratings.csv')
         self.movies_path = os.path.join(base_dir, 'movies.csv')
 
@@ -82,6 +82,38 @@ class MovieLens:
 
         return user_ratings
 
+    def get_genres(self):
+        genres = defaultdict(list)
+
+        genre_ids = {}
+
+        max_genre_id = 0
+
+        with open(self.movies_path, newline='', encoding='ISO-8859-1') as csv_file:
+            movie_reader = csv.reader(csv_file)
+            next(movie_reader)
+            for row in movie_reader:
+                movie_id = int(row[0])
+                genre_list = row[2].split('|')
+                genre_id_list = []
+
+                for genre in genre_list:
+                    if genre in genre_ids:
+                        genre_id = genre_ids[genre]
+                    else:
+                        genre_id = max_genre_id
+                        genre_ids[genre] = genre_id
+                        max_genre_id += 1
+                    genre_id_list.append(genre_id)
+                genres[movie_id] = genre_id_list
+        for movie_id, genre_id_list in genres.items():
+            bit_field = [0] * max_genre_id
+            for genre_id in genre_id_list:
+                bit_field[genre_id] = 1
+            genres[movie_id] = bit_field
+
+        return genres
+
     def get_years(self):
         p = re.compile(r"(?:\((\d{4})\))?\s*$")
 
@@ -104,6 +136,33 @@ class MovieLens:
                     years[movie_id] = int(year)
 
         return years
+
+    def get_mise_en_scene(self):
+        mes = defaultdict(list)
+
+        with open(os.path.join(self.base_dir, 'LLVisualFeatures13K_Log.csv'), newline='', encoding='ISO-8859-1') as csv_file:
+            mes_reader = csv.reader(csv_file)
+            next(mes_reader)
+            for row in mes_reader:
+                movie_id = int(row[0])
+                avg_shot_length = float(row[1])
+                mean_color_variance = float(row[2])
+                stddev_color_variance = float(row[3])
+                mean_motion = float(row[4])
+                stddev_motion = float(row[5])
+                mean_lighting_key = float(row[6])
+                num_shots = float(row[7])
+                mes[movie_id] = [
+                    avg_shot_length,
+                    mean_color_variance,
+                    stddev_color_variance,
+                    mean_motion,
+                    stddev_motion,
+                    mean_lighting_key,
+                    num_shots,
+                ]
+        return mes
+
 
     def get_movie_name(self, movie_id: int) -> str:
         return self.movie_id_to_name[movie_id] or ''
